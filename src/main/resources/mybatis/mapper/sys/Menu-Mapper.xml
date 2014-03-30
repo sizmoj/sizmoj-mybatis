@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sizmoj.sizmoj.modules.sys.mapper.MenuMapper">					
+	<resultMap type="menu" id="menumap">
+		<id column="id" property="id"/>
+		<result column="parent_ids" property="parentIds"/>
+		<result column="name" property="name"/>
+		<result column="href" property="href"/>
+		<result column="icon" property="icon"/>
+		<result column="sort" property="sort"/>
+		<result column="is_show" property="isShow"/>
+		<result column="permission" property="permission"/>	
+		<result column="remarks" property="remarks"/>
+		<result column="create_date" property="createDate"/>
+		<result column="update_date" property="updateDate"/>
+		<result column="del_flag" property="delFlag"/>
+		<association property="parent" column="parent_id" javaType="com.sizmoj.sizmoj.modules.sys.entity.Menu">
+			<id property="id" column="parent_id" />
+		</association>	
+		<association property="createBy" column="create_by" javaType="com.sizmoj.sizmoj.modules.sys.entity.User" >
+			<id property="id" column="create_by" />
+		</association>
+		<association property="updateBy" column="update_by" javaType="com.sizmoj.sizmoj.modules.sys.entity.User" >
+			<id property="id" column="update_by" />
+		</association>
+	</resultMap>
+	<select id="getMenuById" parameterType="long" resultMap="menumap" >
+		SELECT * FROM SYS_MENU WHERE DEL_FLAG=0 AND ID=#{id};
+	</select>
+	<select id="getMenuByRoles" parameterType="string" resultMap="menumap" resultType="list">
+		SELECT * FROM SYS_MENU WHERE DEL_FLAG=0 AND ID IN 
+			(SELECT MENU_ID FROM SYS_ROLE_MENU WHERE ROLE_ID IN (#{RoleIds})) ORDER BY SORT;
+	</select>
+	<select id="getAllMenu" resultMap="menumap" resultType="list">
+		SELECT * FROM SYS_MENU WHERE DEL_FLAG=0
+	</select>
+	<insert id="addMenu" parameterType="menu" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO SYS_MENU(
+			PARENT_ID, PARENT_IDS,NAME,HREF,TARGET,
+			ICON,SORT,IS_SHOW,PERMISSION,
+			CREATE_BY,CREATE_DATE,UPDATE_BY,UPDATE_DATE,REMARKS,DEL_FLAG)
+		VALUES(
+			#{parent.id},#{parentIds},#{name},#{href},#{target},
+			#{icon},#{sort},#{isShow},#{permission},
+			#{createBy.id}, #{createDate},#{updateBy.id}, 
+			#{updateDate},#{remarks}, #{delFlag}
+		)
+	</insert>
+	<update id="updateMenu" parameterType="menu">
+		UPDATE SYS_MENU SET PARENT_ID=#{parent.id},PARENT_IDS=#{parentIds},NAME=#{name},
+			HREF=#{href},TARGET=#{target},ICON=#{icon},SORT=#{sort},IS_SHOW=#{isShow},
+			PERMISSION=#{permission},CREATE_BY=#{createBy.id},CREATE_DATE=#{createDate},
+			UPDATE_BY=#{updateBy.id},UPDATE_DATE=#{updateDate},REMARKS=#{remarks},DEL_FLAG=#{delFlag}
+		WHERE ID = #{id} 
+	</update>
+	<select id="findByParentIdsLike" parameterType="string" resultMap="menumap" resultType="list">
+		SELECT * FROM SYS_MENU WHERE DEL_FLAG=0 AND PARENT_IDS LIKE #{string}
+	</select>
+	<update id="deleteById">
+		UPDATE SYS_MENU SET DEL_FLAG=1 WHERE ID=#{id} OR PARENT_IDS LIKE #{likeParentIds}
+	</update>
+</mapper>

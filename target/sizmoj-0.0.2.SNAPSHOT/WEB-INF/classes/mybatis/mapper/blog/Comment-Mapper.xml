@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+         符号转义说明
+    &lt;          < 
+    &gt;          >  
+    &lt;&gt;     <>
+    &amp;        & 
+    &apos;       '
+    &quot;       "
+  <![CDATA[ 这里写你的SQL或者符号 ]]> 
+ -->
+<mapper namespace="com.sizmoj.sizmoj.modules.blog.mapper.CommentMapper">					
+	<resultMap type="comment" id="commentmap">
+		<id column="id" property="id"/>
+		<result column="author" property="author"/>
+		<result column="email" property="email"/>
+		<result column="url" property="url"/>
+		<result column="ip" property="ip"/>
+		<result column="dateTime" property="dateTime"/>
+		<result column="text" property="text"/>
+		<result column="approved" property="approved"/>
+		<result column="agent" property="agent"/>
+		<association property="post" column="post_id" javaType="com.sizmoj.sizmoj.modules.blog.entity.Post" >
+			<id property="id" column="post_id" />
+		</association>
+		<association property="parentComment" column="parent_Comment_id" javaType="com.sizmoj.sizmoj.modules.blog.entity.Comment" >
+			<id property="id" column="parent_Comment_id" />
+		</association>
+	</resultMap>
+	<insert id="add" parameterType="comment" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO BLOG_COMMENT(
+			AUTHOR, EMAIL, URL, IP, DATETIME, TEXT,
+			AGENT, POST_ID, PARENT_COMMENT_ID)
+		VALUES(
+			#{author}, #{email}, #{url}, #{ip}, #{dateTime}, #{text},
+			 #{agent}, #{post.id}, #{parentComment.id}
+		)
+	</insert>	
+	<delete id="delete" parameterType="long">
+		DELETE FROM BLOG_COMMENT WHERE ID=#{id}
+	</delete>
+	<select id="get" parameterType="long" resultMap="commentmap">
+	SELECT * FROM BLOG_COMMENT WHERE ID=#{id};
+	</select>
+	<update id="update" parameterType="comment">
+		UPDATE BLOG_COMMENT SET 
+			AUTHOR=#{author}, EMAIL=#{email}, URL=#{url},
+			IP=#{ip}, DATETIME=#{dateTime}, TEXT=#{text},
+			AGENT=#{agent}, POST_ID=#{post.id}, PARENT_COMMENT_ID=#{parentComment.id}
+		WHERE ID=#{id}
+	</update>
+	<select id="findAll" resultType="list" resultMap="commentmap">
+		SELECT * FROM BLOG_COMMENT;
+	</select>
+	<select id="count" resultType="long">
+		SELECT COUNT(*) FROM BLOG_COMMENT;
+	</select>
+	<select id="findByCondition" resultMap="commentmap" resultType="list">
+		SELECT * FROM BLOG_COMMENT P
+		<where> 
+			1=1
+			<if test=" postId != null">
+				AND POST_ID = #{postId}
+			</if>
+			<if test=" startDate != null">
+				AND DATETIME &gt; #{startDate}
+			</if>
+			<if test=" endDate != null">
+				AND DATETIME &lt; #{endDate}
+			</if>
+		</where>
+		ORDER BY dateTime  Desc LIMIT #{startPage}, #{pageSize} 
+	</select>
+	<select id="countByCondition" resultType="long">
+		SELECT count(*) FROM BLOG_COMMENT P 
+		<where> 
+			1=1
+			<if test=" postId != null">
+				AND POST_ID = #{postId}
+			</if>
+			<if test=" startDate != null">
+				AND DATETIME &gt; #{startDate}
+			</if>
+			<if test=" endDate != null">
+				AND DATETIME &lt; #{endDate}
+			</if>
+		</where>
+		ORDER BY dateTime DESC
+	</select>
+	<delete id="deleteCommentByPostId" parameterType="long">
+		DELETE FROM BLOG_COMMENT WHERE POST_ID=#{postId}
+	</delete>
+</mapper>

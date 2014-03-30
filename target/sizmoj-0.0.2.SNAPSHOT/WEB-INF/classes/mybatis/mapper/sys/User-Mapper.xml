@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sizmoj.sizmoj.modules.sys.mapper.UserMapper">
+	<resultMap type="user" id="usermap">
+		<id column="id" property="id"/>
+		<result column="login_name" property="loginName"/>
+		<result column="password" property="password"/>
+		<result column="name" property="name"/>
+		<result column="email" property="email"/>
+		<result column="phone" property="phone"/>
+		<result column="mobile" property="mobile"/>
+		<result column="user_type" property="userType"/>		
+		<result column="login_ip" property="loginIp"/>
+		<result column="login_date" property="loginDate"/>
+		<result column="remarks" property="remarks"/>
+		<result column="create_date" property="createDate"/>
+		<result column="update_date" property="updateDate"/>
+		<result column="del_flag" property="delFlag"/>	
+		<association property="createBy" column="create_by" javaType="User" >
+			<id property="id" column="create_by" />
+		</association>
+		<association property="updateBy" column="update_by" javaType="User" >
+			<id property="id" column="update_by" />
+		</association>
+<!-- 		<collection property="roleList" ofType="role">
+			<id column="id" property="id"/>
+			<result column="name" property="name"/> -->
+<!-- 			<collection property="menuList" ofType="menu">
+				<id column="id" property="id"/>
+				<result column="parent_id" property="parent"/>
+				<result column="parent_ids" property="parentIds"/>
+				<result column="name" property="name"/>
+				<result column="href" property="href"/>
+				<result column="target" property="target"/>
+				<result column="icon" property="icon"/>
+				<result column="sort" property="sort"/>
+				<result column="is_show" property="isShow"/>
+				<result column="permission" property="permission"/>
+				<result column="del_flag" property="delFlag"/>
+			</collection> -->
+		<!-- </collection> -->
+	</resultMap>
+	<insert id="insertUser" parameterType="user" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO SYS_USER(
+			LOGIN_NAME, PASSWORD, NAME,EMAIL,
+			PHONE, MOBILE, USER_TYPE, LOGIN_IP,
+			LOGIN_DATE, REMARKS,CREATE_BY, CREATE_DATE,
+			UPDATE_BY, UPDATE_DATE, DEL_FLAG
+		) VALUES(
+			#{loginName}, #{password}, #{name}, #{email}, 
+			#{phone}, #{mobile}, #{userType}, #{loginIp}, 
+			#{loginDate}, #{remarks}, #{createBy.id}, #{createDate},
+			#{updateBy.id}, #{updateDate}, #{delFlag}
+		)
+	</insert>
+	<select id="findUserById" resultMap="usermap" parameterType="long">
+		SELECT * FROM SYS_USER WHERE ID=#{id} AND DEL_FLAG=0
+	</select>
+	<select id="findAll" resultMap="usermap" resultType="list">
+		SELECT * FROM SYS_USER WHERE DEL_FLAG=0;
+	</select>
+	<select id="findUserByUserNamePassword" resultMap="usermap" parameterType="user">
+		SELECT * FROM SYS_USER WHERE LOGIN_NAME = #{loginName} AND PASSWORD = #{password}
+	</select>
+	<update id="deleteUser" parameterType="long">
+		UPDATE SYS_USER SET DEL_FLAG=1 WHERE ID=#{userId}
+	</update>
+	<update id="updateUser" parameterType="user">
+		UPDATE SYS_USER SET 
+			LOGIN_NAME=#{loginName}, PASSWORD=#{password},NAME=#{name},EMAIL=#{email},
+			PHONE=#{phone}, MOBILE=#{mobile}, USER_TYPE=#{userType}, LOGIN_IP=#{loginIp},
+			LOGIN_DATE=#{loginDate}, REMARKS=#{remarks},CREATE_BY=#{createBy.id}, CREATE_DATE=#{createDate},
+			UPDATE_BY=#{updateBy.id}, UPDATE_DATE=#{updateDate}, DEL_FLAG=#{delFlag}
+		WHERE ID=#{id}
+	</update>
+	<delete id="deleteUserRole">
+		DELETE FROM SYS_USER_ROLE WHERE ROLE_ID=#{roleId} AND USER_ID=#{userId}
+	</delete>
+	<insert id="addUserRole">
+		INSERT INTO  FROM SYS_USER_ROLE(ROLE_ID, USER_ID) 
+			VALUES(#{roleId}, #{userId})
+	</insert>
+	<select id="findByPage" resultMap="usermap" resultType="list">
+		SELECT * FROM SYS_USER WHERE DEL_FLAG=0 LIMIT #{prefix}, #{suffix}
+	</select>
+	<select id="count" resultType="long">
+		SELECT COUNT(*) FROM SYS_USER WHERE DEL_FLAG=0
+	</select>
+	<select id="findByLoginName" resultMap="usermap" resultType="list">
+		SELECT * FROM SYS_USER WHERE DEL_FLAG=0 AND LOGIN_NAME=#{loginName}
+	</select>
+	<update id="updatePasswordById">
+		UPDATE SYS_USER SET PASSWORD=#{newPassword} WHERE ID=#{id} AND LOGIN_NAME=#{loginName}
+	</update>
+	<update id="updateLoginInfo">
+		UPDATE SYS_USER SET LOGIN_IP=#{loginIp}, LOGIN_DATE=#{loginDate} WHERE ID=#{id}
+	</update>
+</mapper>

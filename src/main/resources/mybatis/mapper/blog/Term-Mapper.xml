@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+         符号转义说明
+    &lt;          < 
+    &gt;          >  
+    &lt;&gt;     <>
+    &amp;        & 
+    &apos;       '
+    &quot;       "
+  <![CDATA[ 这里写你的SQL或者符号 ]]> 
+ -->
+<mapper namespace="com.sizmoj.sizmoj.modules.blog.mapper.TermMapper">					
+	<resultMap type="term" id="termmap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="slug" property="slug"/>
+		<result column="is_Show" property="isShow"/>
+		<result column="is_Page" property="isPage"/>
+	</resultMap>
+	<insert id="add" parameterType="term" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO BLOG_TERM(
+			NAME, SLUG, IS_SHOW, IS_PAGE)
+		VALUES(
+			#{name}, #{slug}, #{isShow}, #{isPage}
+		)
+	</insert>	
+	<delete id="delete" parameterType="long">
+		DELETE FROM  BLOG_TERM WHERE ID=#{id}
+	</delete>
+	<select id="get" parameterType="long" resultMap="termmap">
+		SELECT * FROM BLOG_TERM WHERE ID=#{id};
+	</select>
+	<update id="update" parameterType="term">
+		UPDATE BLOG_TERM SET 
+			NAME=#{name}, SLUG=#{slug}, IS_SHOW=#{isShow},
+			IS_PAGE=#{isPage}
+		WHERE ID=#{id}
+	</update>
+	
+	<select id="findAll" resultType="list" resultMap="termmap">
+		SELECT * FROM BLOG_TERM;
+	</select>
+	<select id="count" resultType="long">
+		SELECT COUNT(*) FROM BLOG_TERM;
+	</select>
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+         符号转义说明
+    &lt;          < 
+    &gt;          >  
+    &lt;&gt;     <>
+    &amp;        & 
+    &apos;       '
+    &quot;       "
+  <![CDATA[ 这里写你的SQL或者符号 ]]> 
+ -->
+<mapper namespace="com.sizmoj.sizmoj.modules.blog.mapper.TagMapper">					
+	<resultMap type="tag" id="tagmap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+	</resultMap>
+	<insert id="add" parameterType="tag" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO BLOG_TAG(
+			NAME )
+		VALUES(
+			#{name}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE BLOG_TAG SET NAME=#{name} WHERE ID=#{id}
+	</update>
+	<select id="findAll" resultType="list" resultMap="tagmap">
+		SELECT * FROM BLOG_TAG;
+	</select>
+	<select id="count" resultType="long">
+		SELECT COUNT(*) FROM BLOG_TAG;
+	</select>
+	<select id="findByCondition" resultMap="tagmap" resultType="list">
+		SELECT * FROM BLOG_TAG
+		<where> 
+			1=1
+			<if test=" name != null">
+				AND NAME = #{name}
+			</if>		
+		</where>
+	</select>
+	<delete id="delete">
+		DELETE FROM BLOG_TAG WHERE ID=#{id}
+	</delete>
+	<delete id="deletePostTagByTagId" parameterType="long">
+		DELETE FROM BLOG_POST_TAG WHERE TAG_ID=#{tagId}
+	</delete>
+	<select id="findByConditionCount" parameterType="long" resultType="long">
+		SELECT COUNT(*) FROM BLOG_TAG WHERE NAME=#{name};
+	</select>
+	<select id="findByPostId"  parameterType="long" resultMap="tagmap" resultType="list">
+		SELECT * FROM BLOG_TAG WHERE ID IN (SELECT TAG_ID FROM BLOG_POST_TAG WHERE POST_ID=#{postId});
+	</select>
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="lazyLoadingEnabled" value="true"/>
+    	<setting name="aggressiveLazyLoading" value="false"/>
+    </settings>
+	<typeAliases>
+		<typeAlias type="com.sizmoj.sizmoj.modules.sys.entity.Dict" alias="dict" />
+		<typeAlias type="com.sizmoj.sizmoj.modules.sys.entity.Log" alias="log" />
+		<typeAlias type="com.sizmoj.sizmoj.modules.sys.entity.Menu" alias="menu" />
+		<typeAlias type="com.sizmoj.sizmoj.modules.sys.entity.Role" alias="role" />
+		<typeAlias type="com.sizmoj.sizmoj.modules.sys.entity.User" alias="user"/>
+		<typeAlias type="com.sizmoj.sizmoj.modules.blog.entity.Comment" alias="comment"/>
+		<typeAlias type="com.sizmoj.sizmoj.modules.blog.entity.Post" alias="post"/>
+		<typeAlias type="com.sizmoj.sizmoj.modules.blog.entity.Tag" alias="tag"/>
+		<typeAlias type="com.sizmoj.sizmoj.modules.blog.entity.Term" alias="term"/>
+	</typeAliases>
+</configuration>

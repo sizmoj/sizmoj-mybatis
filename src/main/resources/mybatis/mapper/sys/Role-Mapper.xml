@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sizmoj.sizmoj.modules.sys.mapper.RoleMapper">					
+	<resultMap type="role" id="rolemap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="enname" property="enname"/>
+		<result column="remarks" property="remarks"/>
+		<result column="create_date" property="createDate"/>
+		<result column="update_date" property="updateDate"/>
+		<result column="del_flag" property="delFlag"/>	
+		<association property="createBy" column="create_by" javaType="com.sizmoj.sizmoj.modules.sys.entity.User" >
+			<id property="id" column="create_by" />
+		</association>
+		<association property="updateBy" column="update_by" javaType="com.sizmoj.sizmoj.modules.sys.entity.User" >
+			<id property="id" column="update_by" />
+		</association>
+	</resultMap>
+	<select id="findAllRole" resultMap="rolemap" resultType="list">
+		SELECT * FROM SYS_ROLE WHERE DEL_FLAG=0;
+	</select>
+	<update id="deleteRole" parameterType="long">
+		UPDATE SYS_ROLE SET DEL_FLAG=1 WHERE ID=#{id} 
+	</update>
+	<insert id="insertRole" parameterType="role" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO SYS_ROLE(
+			NAME, ENNAME,
+			REMARKS,CREATE_BY, CREATE_DATE,
+			UPDATE_BY, UPDATE_DATE, DEL_FLAG
+		) VALUES(
+			#{name}, #{enname},
+			#{remarks}, #{createBy.id}, #{createDate},
+			#{updateBy.id}, #{updateDate}, #{delFlag}
+		)
+	</insert>
+	<update id="updateRole" parameterType="role">
+		UPDATE SYS_ROLE SET 
+			NAME=#{name}, ENNAME=#{enname},
+			REMARKS=#{remarks},CREATE_BY=#{createBy.id}, CREATE_DATE=#{createDate},
+			UPDATE_BY=#{updateBy.id}, UPDATE_DATE=#{updateDate}, DEL_FLAG=#{delFlag}
+		WHERE ID=#{id}		
+	</update>
+	<select id="findRoleByUser" resultType="list" resultMap="rolemap" parameterType="user">
+		SELECT * FROM SYS_ROLE R  
+			WHERE DEL_FLAG=0 AND R.ID in 
+			(SELECT ROLE_ID FROM SYS_USER_ROLE WHERE USER_ID=#{id}) AND DEL_FLAG=0
+	</select>
+	<select id="findRoleByRoleId" resultMap="rolemap" parameterType="long">
+		SELECT * FROM SYS_ROLE WHERE ID=#{id} AND DEL_FLAG=0
+	</select>
+	<delete id="deleteRoleMenu">
+		DELETE FROM SYS_ROLE_MENU WHERE ROLE_ID=#{roleId}
+	</delete>
+	<insert id="addRoleMenu">
+		INSERT INTO SYS_ROLE_MENU(ROLE_ID,MENU_ID) VALUES (#{roleId}, #{menuId})
+	</insert>
+	<select id="findByName" resultMap="rolemap" parameterType="string">
+		SELECT * FROM SYS_ROLE WHERE NAME=#{name} AND DEL_FLAG=0
+	</select>
+</mapper>

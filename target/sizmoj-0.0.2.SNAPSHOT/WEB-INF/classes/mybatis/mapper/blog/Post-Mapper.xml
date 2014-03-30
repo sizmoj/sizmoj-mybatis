@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+         符号转义说明
+    &lt;          < 
+    &gt;          >  
+    &lt;&gt;     <>
+    &amp;        & 
+    &apos;       '
+    &quot;       "
+  <![CDATA[ 这里写你的SQL或者符号 ]]> 
+ -->
+<mapper namespace="com.sizmoj.sizmoj.modules.blog.mapper.PostMapper">					
+	<resultMap type="post" id="postmap">
+		<id column="id" property="id"/>
+		<result column="public_Date" property="publicDate"/>
+		<result column="content" property="content"/>
+		<result column="post_Title" property="postTitle"/>
+		<result column="excerpt" property="excerpt"/>
+		<result column="status" property="status"/>
+		<result column="password" property="password"/>
+		<result column="post_Modified" property="postModified"/>
+		<result column="menuOrder" property="menuOrder"/>
+		<result column="comment_Count" property="commentCount"/>
+		<association property="author" column="user_id" javaType="com.sizmoj.sizmoj.modules.sys.entity.User" >
+			<id property="id" column="user_id" />
+		</association>
+		<association property="parentPost" column="parentPost_id" javaType="com.sizmoj.sizmoj.modules.blog.entity.Post" >
+			<id property="id" column="parentPost_id" />
+		</association>
+		<association property="term" column="term_id" javaType="com.sizmoj.sizmoj.modules.blog.entity.Term" >
+			<id property="id" column="term_id" />
+		</association>
+	</resultMap>
+	<insert id="add" parameterType="post" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO BLOG_POST(
+			PUBLIC_DATE, CONTENT, POST_TITLE, EXCERPT, PASSWORD, POST_MODIFIED,
+			MENUORDER, COMMENT_COUNT, USER_ID, PARENTPOST_ID, TERM_ID)
+		VALUES(
+			#{publicDate}, #{content}, #{postTitle}, #{excerpt}, #{password}, #{postModified},
+			#{menuOrder}, #{commentCount}, #{author.id}, #{parentPost.id},#{term.id}
+		)
+	</insert>	
+	<update id="delete" parameterType="long">
+		UPDATE BLOG_POST SET STATUS=1 WHERE ID=#{id}
+	</update>
+	<update id="update" parameterType="post">
+		UPDATE BLOG_POST SET 
+			PUBLIC_DATE=#{publicDate}, CONTENT=#{content}, POST_TITLE=#{postTitle},
+			EXCERPT=#{excerpt}, PASSWORD=#{password}, POST_MODIFIED=#{postModified},
+			MENUORDER=#{menuOrder}, COMMENT_COUNT=#{commentCount}, USER_ID=#{author.id},
+			PARENTPOST_ID=#{parentPost.id}, TERM_ID=#{term.id}, STATUS=#{status}
+		WHERE ID=#{id}
+	</update>
+	<select id="get" parameterType="long" resultMap="postmap">
+		SELECT * FROM BLOG_POST WHERE (STATUS=0 OR STATUS=2) AND ID=#{id} ;
+	</select>
+	<select id="findAll" resultType="list" resultMap="postmap">
+		SELECT * FROM BLOG_POST WHERE STATUS=0;
+	</select>
+	<select id="count" resultType="long">
+		SELECT COUNT(*) FROM BLOG_POST WHERE STATUS=0;
+	</select>
+	<select id="findByCondition" resultMap="postmap" resultType="list">
+		SELECT * FROM BLOG_POST  P LEFT JOIN BLOG_POST_TAG PT ON PT.POST_ID=P.ID
+		<where>
+			(P.STATUS=0 OR STATUS=2)
+			<if test=" tagId != null">
+				AND TAG_ID = #{tagId}
+			</if>
+			<if test=" startDate != null">
+				AND POST_MODIFIED &gt; #{startDate}
+			</if>
+			<if test=" endDate != null">
+				AND POST_MODIFIED &lt; #{endDate}
+			</if>
+			<if test=" termId != null">
+				AND TERM_ID = #{termId}
+			</if>
+			<if test=" postTitle != null">
+				AND POST_TITLE like #{postTitle}
+			</if>	
+		</where> 
+		ORDER BY PUBLIC_DATE DESC LIMIT #{startPage}, #{pageSize}
+	</select>
+	<select id="countByCondition" resultType="long">
+		SELECT COUNT(*) FROM BLOG_POST P LEFT JOIN BLOG_POST_TAG PT ON PT.POST_ID=P.ID
+		<where>
+			(P.STATUS=0 OR STATUS=2)
+			<if test=" tagId != null">
+				AND TAG_ID = #{tagId}
+			</if>
+			<if test=" startDate != null">
+				AND POST_MODIFIED &gt; #{startDate}
+			</if>
+			<if test=" endDate != null">
+				AND POST_MODIFIELD &lt; #{endDate}
+			</if>
+			<if test=" termId != null">
+				AND TERM_ID = #{termId}
+			</if>
+			<if test=" postTitle != null">
+				AND POST_TITLE like #{postTitle}
+			</if>	
+		</where>
+	</select>
+	<delete id="deletePostTagByPostId" parameterType="long">
+		DELETE FROM BLOG_POST_TAG WHERE POST_ID=#{postId}
+	</delete>
+	<insert id="addPostTag">
+		INSERT INTO BLOG_POST_TAG(POST_ID, TAG_ID) VALUES (#{postId}, #{tagId});
+	</insert>
+	<select id="getNewsPost" resultMap="postmap" resultType="list">
+		SELECT * FROM BLOG_POST ORDER BY PUBLIC_DATE DESC  LIMIT 0, 5;
+	</select>	
+	<select id="findByConditionFront" resultMap="postmap" resultType="list">
+		SELECT * FROM BLOG_POST  P LEFT JOIN BLOG_POST_TAG PT ON PT.POST_ID=P.ID
+		<where>
+			P.STATUS=0
+			<if test=" tagId != null">
+				AND TAG_ID = #{tagId}
+			</if>
+			<if test=" startDate != null">
+				AND POST_MODIFIED &gt; #{startDate}
+			</if>
+			<if test=" endDate != null">
+				AND POST_MODIFIED &lt; #{endDate}
+			</if>
+			<if test=" termId != null">
+				AND TERM_ID = #{termId}
+			</if>
+			<if test=" postTitle != null">
+				AND POST_TITLE like #{postTitle}
+			</if>	
+		</where> 
+		ORDER BY PUBLIC_DATE DESC LIMIT #{startPage}, #{pageSize}
+	</select>
+	<select id="countByConditionFront" resultType="long">
+		SELECT COUNT(*) FROM BLOG_POST P LEFT JOIN BLOG_POST_TAG PT ON PT.POST_ID=P.ID
+		<where>
+			P.STATUS=0
+			<if test=" tagId != null">
+				AND TAG_ID = #{tagId}
+			</if>
+			<if test=" startDate != null">
+				AND POST_MODIFIED &gt; #{startDate}
+			</if>
+			<if test=" endDate != null">
+				AND POST_MODIFIELD &lt; #{endDate}
+			</if>
+			<if test=" termId != null">
+				AND TERM_ID = #{termId}
+			</if>
+			<if test=" postTitle != null">
+				AND POST_TITLE like #{postTitle}
+			</if>	
+		</where>
+	</select>
+</mapper>

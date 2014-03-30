@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+         符号转义说明
+    &lt;          < 
+    &gt;          >  
+    &lt;&gt;     <>
+    &amp;        & 
+    &apos;       '
+    &quot;       "
+  <![CDATA[ 这里写你的SQL或者符号 ]]> 
+ -->
+<mapper namespace="com.sizmoj.sizmoj.modules.sys.mapper.LogMapper">					
+	<resultMap type="log" id="logmap">
+		<id column="id" property="id"/>
+		<result column="type" property="type"/>
+		<result column="create_date" property="createDate"/>
+		<result column="remote_addr" property="remoteAddr"/>
+		<result column="user_agent" property="userAgent"/>
+		<result column="request_uri" property="requestUri"/>
+		<result column="method" property="method"/>
+		<result column="params" property="params"/>
+		<result column="exception" property="exception"/>		
+		<association property="createBy" column="create_by" javaType="com.sizmoj.sizmoj.modules.sys.entity.User" >
+			<id property="id" column="create_by" />
+		</association>
+	</resultMap>
+	
+	<select id="findAllList" resultType="list" resultMap="logmap">
+		SELECT * FROM SYS_LOG
+	</select>
+	
+	<select id="findByPage" resultType="list" resultMap="logmap">
+		SELECT * FROM SYS_LOG LIMIT #{prefix}, #{suffix}
+	</select>
+	
+	<insert id="add" parameterType="log" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO SYS_DICT(
+			TYPE, CREATE_DATE, REMOTE_ADDR, USER_AGENT, REQUEST_URI, 
+			METHOD, PARAMS, EXCEPTION, CREATE_BY)
+		VALUES(
+			#{type}, #{createDate}, #{remoteAddr}, #{userAgent}, #{requestUri},
+			#{method}, #{params}, #{exception}, #{createBy.id},
+		)
+	</insert>
+	<select id="count" resultType="long">
+		SELECT COUNT(*) FROM SYS_DICT WHERE DEL_FLAG=0
+	</select>
+	<select id="findById" resultMap="logmap" parameterType="long">
+		SELECT * FROM SYS_LOG WHERE ID=#{id}
+	</select>
+	<select id="findByCondition" resultMap="logmap" resultType="list">
+		SELECT * FROM SYS_LOG 
+		<where>
+			<if test=" id != null">
+				id=#{id}
+			</if>
+			<if test=" exception != null">
+				AND exception=#{exception}
+			</if>
+			<if test=" beginDate != null">
+				AND create_date &gt; #{beginDate}
+			</if>
+			<if test=" endDate != null">
+				AND create_date &lt; #{endDate}
+			</if>
+			<if test=" requestUri != null">
+				AND request_Uri=#{requestUri}
+			</if>	
+		</where>
+		LIMIT #{prefix}, #{suffix}
+	</select>
+	<select id="findByConditionCount"  resultType="long">
+		SELECT COUNT(*) FROM SYS_LOG 
+		<where>
+			<if test=" id != null">
+				id=#{id}
+			</if>
+			<if test=" exception != null">
+				AND exception=#{exception}
+			</if>
+			<if test=" beginDate != null">
+				AND create_date &gt; #{beginDate}
+			</if>
+			<if test=" endDate != null">
+				AND create_date &lt; #{endDate}
+			</if>
+			<if test=" requestUri != null">
+				AND request_Uri=#{requestUri}
+			</if>	
+		</where>
+	</select>
+</mapper>
